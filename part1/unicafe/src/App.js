@@ -7,14 +7,15 @@ const Button = (props) => (
 )
 
 const Display = (props) => (
-  <p>{props.tag} {props.value}</p>
+  <p>{props.tag} {props.value || 0}</p>
 )
 
 const App = () => {
-  // save clicks of each button to its own state
   const [good, setGood] = useState(0)
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
+
+  let total = good + neutral + bad;
 
   return (
     <div>
@@ -27,6 +28,9 @@ const App = () => {
       <Display tag={'good'} value={good} />
       <Display tag={'neutral'} value={neutral} />
       <Display tag={'bad'} value={bad} />
+      <Display tag={'all'} value={total}/>
+      <Display tag={'average'} value={(good*1 + neutral*0 + bad*-1)/total}/>
+      <Display tag={'positive'} value={(good/total || 0) + '%'}/>
     </div>
   )
 }
