@@ -1,8 +1,24 @@
 import { useState } from 'react'
 
 function selectAnecdote (anecdotes, setSelected) {
-  let index = Math.floor(Math.random() * anecdotes.length);
+  const index = Math.floor(Math.random() * anecdotes.length);
   setSelected(index)
+}
+
+function voteForAnecdote (selected, points, setPoints) {
+  let newPoints = [...points];
+  newPoints[selected] +=1;
+  setPoints(newPoints);
+}
+
+function findHighestRatedAnecdote (anecdotes,points) {
+  const max = Math.max(...points);
+  if (max === 0) {
+    return "No votes yet!";
+  } else {
+    const index = points.indexOf(max);
+    return anecdotes[index];
+  }
 }
 
 const App = () => {
@@ -19,13 +35,20 @@ const App = () => {
   
    
   const [selected, setSelected] = useState(0)
+  const [points, setPoints] = useState(Array(anecdotes.length).fill(0));
 
   return (
     <div>
+      <h1>Anecdote of the day</h1>
       <p>{anecdotes[selected]}</p>
+      <button onClick={() => voteForAnecdote(selected, points, setPoints)}>
+        vote
+      </button>
       <button onClick={() => selectAnecdote(anecdotes, setSelected)}>
         next anecdote
       </button>
+      <h1>Anecdote with most votes</h1>
+      <p>{findHighestRatedAnecdote(anecdotes, points)}</p>
     </div>
   )
 }
