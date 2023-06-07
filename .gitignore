@@ -1,2 +1,5 @@
 .DS_Store
+part1/anecdotes/node_modules/*
 part1/courseinfo/node_modules/*
+part1/unicafe/node_modules/*
+part2/courseinfo/node_modules/*
