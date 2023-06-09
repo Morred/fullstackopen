@@ -64,6 +64,23 @@ const App = () => {
     }
   }
 
+  const deletePerson = (id) => {
+    const personName = persons.find(person => person.id === id).name
+    if (window.confirm(`Delete ${personName}?`)) {
+      personService
+        .destroy(id)
+        .then(returnedData => {
+          console.log(returnedData)
+          const newPersonList = persons.filter(person => person.id !== id)
+          setPersons(newPersonList)
+
+          // Reset filter so displayed list updates
+          setFilter('')
+          setPersonsToShow(newPersonList)
+        })
+    }
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -77,7 +94,7 @@ const App = () => {
         addPerson={addPerson}
       />
       <h2>Numbers</h2>
-      <People people={personsToShow}/>
+      <People people={personsToShow} deletePersonHandler={deletePerson}/>
     </div>
   )
 }
