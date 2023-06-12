@@ -11,7 +11,9 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [personsToShow, setPersonsToShow] = useState(persons)
   const [filter, setFilter] = useState('')
-  const [notification, setNotification] = useState(null)
+  const [successNotification, setSuccessNotification] = useState(null)
+  const [errorNotification, setErrorNotification] = useState(null)
+  const [infoNotification, setInfoNotification] = useState(null)
 
   useEffect(() => {
     personService
@@ -42,6 +44,32 @@ const App = () => {
     }
   }
 
+  const updatePersonLists = (newPersonList) => {
+    setPersons(newPersonList)
+    setPersonsToShow(newPersonList)
+    setNewName('')
+    setNewNumber('')
+  }
+
+  const registerNotification = (notificationType, text) => {
+    if (notificationType === 'success') {
+      setSuccessNotification(text)
+      setTimeout(() => {
+        setSuccessNotification(null)
+      }, 5000)
+    } else if (notificationType === 'error') {
+      setErrorNotification(text)
+      setTimeout(() => {
+        setErrorNotification(null)
+      }, 5000)
+    } else {
+      setInfoNotification(text)
+      setTimeout(() => {
+        setInfoNotification(null)
+      }, 5000)
+    }
+  }
+
   const addPerson = (event) => {
     event.preventDefault()
 
@@ -52,15 +80,13 @@ const App = () => {
         personService
           .update(person.id, { ...person, number: newNumber } )
           .then(returnedPerson => {
-            const newPersonList = persons.filter(person => person.name !== newName).concat(returnedPerson)
-            setPersons(newPersonList)
-            setPersonsToShow(newPersonList)
-            setNewName('')
-            setNewNumber('')
-            setNotification(`Updated ${returnedPerson.name}`)
-            setTimeout(() => {
-              setNotification(null)
-            }, 5000)
+            updatePersonLists(persons.filter(person => person.name !== newName).concat(returnedPerson))
+            registerNotification('success', `Updated ${returnedPerson.name}`)
+          })
+          .catch(error => {
+            const newPersonList = persons.filter(person => person.name !== newName)
+            updatePersonLists(newPersonList)
+            registerNotification('error', `${person.name} was already deleted from the server`)
           })
       }
     } else {
@@ -69,15 +95,8 @@ const App = () => {
       personService
         .create(personObject)
         .then(returnedPerson => {
-          const newPersonList = persons.concat(returnedPerson)
-          setPersons(newPersonList)
-          setPersonsToShow(newPersonList)
-          setNewName('')
-          setNewNumber('')
-          setNotification(`Added ${returnedPerson.name}`)
-          setTimeout(() => {
-            setNotification(null)
-          }, 5000)
+          updatePersonLists(persons.concat(returnedPerson))
+          registerNotification('success', `Added ${returnedPerson.name}`)
         })
     }
   }
@@ -88,12 +107,7 @@ const App = () => {
       personService
         .destroy(id)
         .then(returnedData => {
-          const newPersonList = persons.filter(person => person.id !== id)
-          setPersons(newPersonList)
-
-          // Reset filter so displayed list updates
-          setFilter('')
-          setPersonsToShow(newPersonList)
+          updatePersonLists(persons.filter(person => person.id !== id))
         })
     }
   }
@@ -101,7 +115,9 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={notification} />
+      <Notification message={successNotification} className='success' />
+      <Notification message={errorNotification} className='error' />
+      <Notification message={infoNotification} className='info' />
       <Filter filter={filter} filterChangeHandler={filterPersons}/>
       <h2>Add new person</h2>
       <AddNewPersonForm
